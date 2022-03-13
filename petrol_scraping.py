@@ -1,7 +1,7 @@
-import requests
-from bs4 import BeautifulSoup
-from datetime import datetime
 import os
+import requests
+from datetime import datetime
+from bs4 import BeautifulSoup
 import matplotlib.pyplot as plt
 
 
@@ -14,21 +14,21 @@ def scrap_site() -> list:
     return body
 
 
-def save_scrapped_petrol_data(body: list, file_name_path: str) -> None:        
+def save_scrapped_petrol_data(body: list, file_name_path: str) -> None:
     petrol_dict = {}
     for elem in body:
         price = elem.find("span", {"class": "prices-table__price"})
         date_state = elem.find("span", {"class": "prices-table__date"})
         if price != "Brak ceny" and date_state is not None:
-            petrol_station_name = elem.find("h3", {"class": "prices-table__name"}).text.strip()
-            petrol_station_location = elem.find("span", {"class": "prices-table__location"}).text.strip()
+            p_station_name = elem.find("h3", {"class": "prices-table__name"}).text.strip()
+            p_station_location = elem.find("span", {"class": "prices-table__location"}).text.strip()
             date_state = date_state.text.strip()
             price = float(price.text.strip()[:4])
             if date_state == "dziś":
-                petrol_dict[petrol_station_name, petrol_station_location] = price
-    with open(file_name_path, "w", encoding="utf-8") as f:
+                petrol_dict[p_station_name, p_station_location] = price
+    with open(file_name_path, "w", encoding="utf-8") as file_read:
         for key, value in petrol_dict.items():
-            f.write(f"{key[0]}: {value}zł, {key[1]}\n")
+            file_read.write(f"{key[0]}: {value}zł, {key[1]}\n")
     return petrol_dict
 
 
@@ -37,8 +37,8 @@ def load_petrol_data(folder_name: str) -> dict:
     petrol_read_dict = {}
     for file in data_list:
         file_name_path = os.path.join(folder_name, file)
-        with open(file_name_path, "r", encoding="utf-8") as f:
-            petrol_data = f.readlines()
+        with open(file_name_path, "r", encoding="utf-8") as file_read:
+            petrol_data = file_read.readlines()
             date = file.replace(".txt", "")
             petrol_read_dict[date] = []
             for elem in petrol_data:
@@ -52,18 +52,20 @@ def plot_graph(data_dict: dict) -> None:
     for date, price in data_dict.items():
         data_dict[date] = float(price.split(",")[0].split()[-1][:-2])
     data_dict = {k: data_dict[k] for k in sorted(list(data_dict.keys()), key=lambda x: int(x.split("-")[1]))}
-    min_v, max_v = min(data_dict.values()), max(data_dict.values())
-    index_min_v, index_max_v = list(data_dict.values()).index(min_v), list(data_dict.values()).index(max_v)
     graph = plt.bar(x=data_dict.keys(), height=data_dict.values(), width=0.3)
-    graph[index_max_v].set_color('r')
-    graph[index_min_v].set_color('g')
+    min_value = min(list(data_dict.values()))
+    min_index = list(data_dict.values()).index(min_value)
+    max_value = max(list(data_dict.values()))
+    max_index = list(data_dict.values()).index(max_value)
+    graph[max_index].set_color("r")
+    graph[min_index].set_color("g")
     plt.title("Wykres najniższych cen paliw")
     plt.xlabel("Data")
     plt.ylabel("Cena za litr [zł]")
-    plt.ylim([round(min_v-0.1, 1), round(max_v+0.1, 1)])
+    plt.ylim([round(min_value-0.1, 1), round(max_value+0.1, 1)])
     plt.xticks(rotation=45)
-    for i, v in enumerate(data_dict.values()):
-        plt.text(i, v+0.01, str(v), ha = 'center')
+    for num, data in enumerate(data_dict.values()):
+        plt.text(num, data+0.01, str(data), ha="center")
     plt.show()
 
 
