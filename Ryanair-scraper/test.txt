@@ -1,0 +1,7 @@
+
+
+
+Czym jest bot?
+
+BusinessNowoœæTrips Zaloguj siêLotyNoclegiSamochodyLot+HotelZaplanuj swoj¹ podró¿ExploreTrasyBez przesiadekOgraniczenia w podró¿owaniuTripsWyœwietlenie tej strony oznacza, ¿e KAYAK s¹dzi, i¿ jesteœ "botem",\na strona któr¹ próbowa³eœ otworzyæ jest przeznaczona dla ludzi.Co to jest bot?Robot internetowy (ang. bot, web crawler) to program, który zbiera\ndane ze stron internetowych bez udzia³u cz³owieka. Wyszukiwarki\ninternetowe, takie jak Google, wykorzystuj¹ roboty do indeksowania\nstron. KAYAK wykorzystuje boty do wyszukiwania ofert podró¿y. Roboty\ns¹ zazwyczaj przydatne, ale niektóre strony internetowe s¹ przeznaczone\ntylko dla ludzi. Nie chcemy na przyk³ad goœciæ botów, które wszelkimi\nsposobami próbuj¹ zarezerwowaæ bilety lotnicze.Nie jestem botem tylko cz³owiekiem.Zachowanie u¿ywanej przez Ciebie przegl¹darki internetowej\nsprawia, ¿e KAYAK rozpoznaje Ciê jako robota internetowego. Skontaktuj siê z nami, abyœmy mogli sprawdziæ, dlaczego tak siê\u00A0dzieje.Jeœli dotychczas bezproblemowo u¿ywa³eœ KAYAK, spróbuj zamkn¹æ swoj¹\nprzegl¹darkê i uruchomiæ j¹\u00A0ponownie.Dowiedz siê\u00A0wiêcej\nna temat robotów z Wikipedii.Strona i walutaStrona Polska©2022 KAYAKPopularne kierunki lotów miêdzynarodowychTanie loty, hotele, samochody do wynajêcia i oferty podró¿y:KAYAK przeszukuje setki stron turystycznych, by pomóc Ci znaleŸæ tanie loty, hotele i wczasy oraz samochody do wynajêcia.
+
