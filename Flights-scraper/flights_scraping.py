@@ -9,6 +9,10 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
+"""
+py sele.py "gdansk malaga loty" 5
+"""
+
 days_dict = {
     "Monday": "Pon",
     "Tuesday": "Wt",
@@ -34,33 +38,43 @@ months_dict = {
     "12": "Grudzień"
 }
 
-PATH = r"C:\Users\kamil.legowicz\Downloads\chromedriver.exe"
-WEBSITE = "https://www.google.pl/"
-search_text = sys.argv[1] #"poznan majorka loty" 
-ile = int(sys.argv[2])
-splited_search_text = search_text.split()
-rev_search_text = splited_search_text[::-1]
-return_search_text = " ".join(rev_search_text)
 
-service = Service(PATH)
-options = webdriver.ChromeOptions()
-# options.add_argument("headless")
-options.add_experimental_option('excludeSwitches', ['enable-logging'])
-options.add_experimental_option("detach", True)
-
-driver = webdriver.Chrome(service=service, options=options)
-driver.maximize_window()
-driver.get(WEBSITE)
-
-cookies = driver.find_element(By.ID, "L2AGLb").click()
+def get_driver() -> None:
+    chromedriver_path = r"C:\Users\kamil.legowicz\Downloads\chromedriver.exe"
+    service = Service(chromedriver_path)
+    options = webdriver.ChromeOptions()
+    # options.add_argument("headless")
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    options.add_experimental_option("detach", True)
+    
+    global driver
+    driver = webdriver.Chrome(service=service, options=options)
+    driver.maximize_window()
+    return None
 
 
-def main(flights_seek: str, information: str) -> None:
-    search = driver.find_element(By.ID, "APjFqb")
-    search.send_keys(flights_seek)
-    time.sleep(1)
-    search.send_keys(Keys.ENTER)
-    time.sleep(1)
+def load_website(direction: str, search_flights: str) -> None:
+    search = search_flights.split()
+    if direction == "PRZYLOT":
+        search = search[::-1]
+    search = "+".join(search)
+    website_url = f"https://www.google.pl/search?q={search}"
+    driver.get(website_url)
+    return None
+
+
+def format_flight_time(time_flight: str) -> str:
+    split_time = time_flight.split()
+    hour = "".join(split_time[:2])
+    if len(split_time[3]) == 1:
+        split_time[3] = f"0{split_time[3]}"
+    minutes = "".join(split_time[-2:])
+    return f"{hour} {minutes}"
+
+
+def main(information: str, amount: int) -> None:
+    if information == "ODLOT":
+        cookies = driver.find_element(By.ID, "L2AGLb").click()
     driver.find_elements(By.CLASS_NAME, "oFoqE")[1].click()
     time.sleep(1)
     one = driver.find_elements(By.XPATH, "//div[@jsname='ibnC6b']")
@@ -89,53 +103,48 @@ def main(flights_seek: str, information: str) -> None:
         month_sum += monthrange(elem.year, elem.day)[1]
 
     data = {}
-
     for _ in range(month_sum):
         timestamp += timedelta(days=1)
         flights_list = driver.find_elements(By.CLASS_NAME, "ikUyY")
-        for num, elem in enumerate(flights_list):
-            # flight_connect = driver.find_element(By.CLASS_NAME, "u85UCd").text
-            flight_connect = elem.text
+        for num, flight in enumerate(flights_list):
+            flight_connect = flight.text
             if "Bez przesiadek" in flight_connect:
                 flight_time = driver.find_elements(By.CLASS_NAME, "sRcB8")[num].text
+                flight_time = format_flight_time(flight_time)
                 airline = driver.find_elements(By.CLASS_NAME, "ps0VMc")[num].text
                 price = driver.find_elements(By.CLASS_NAME, "GARawf")[num].text.replace("zł", "").replace(" ","")
-                pol_day = days_dict[timestamp.strftime("%A")]
-                pol_month = months_dict[str(timestamp.month)]
-                if pol_month not in data:
-                    data[pol_month] = {f"{timestamp.day:<2} {pol_day:<3}": [int(price), "Bez przesiadek", flight_time, airline]}
+                day_name = days_dict[timestamp.strftime("%A")]
+                month_name = months_dict[str(timestamp.month)]
+                if month_name not in data:
+                    data[month_name] = {f"{timestamp.day:<2} {day_name:<3}": [int(price), "Bez przesiadek", flight_time, f"{airline:<9}"]}
                 else:
-                    data[pol_month][f"{timestamp.day:<2} {pol_day:<3}"] = [int(price), "Bez przesiadek", flight_time, airline]
+                    data[month_name][f"{timestamp.day:<2} {day_name:<3}"] = [int(price), "Bez przesiadek", flight_time, f"{airline:<9}"]
                 break
             else:
                 continue
+
         if _ != month_sum-1:
             driver.find_element(By.CLASS_NAME, "hLDSxb").click()
             time.sleep(0.6)
 
-
     print(information)
     print("-"*100)
-    for key in data:
-        data[key] = sorted(data[key].items(), key=lambda x: x[1])[:ile]
-        data[key][0][1].append("Najtaniej")
-        data[key] = sorted(data[key], key=lambda x: int(x[0].split()[0]))
-        for k, v in data[key]:
-            v = [str(elem) for elem in v]
-            time_flight = v[2].split()
-            hour = "".join(time_flight[:2])
-            minutes = "".join(time_flight[-2:])
-            v[2] = f"{hour} {minutes}"
-            # print(f"{key:<11} {k} {v[0]} PLN | {hour} {minutes} | {v[3]} | {v[-1]}")
-            print(f"{key:<11} {k} PLN", " | ".join(v))
+    for month in data:
+        data[month] = sorted(data[month].items(), key=lambda x: x[1])[:amount]
+        data[month][0][1].append("Najtaniej")
+        data[month] = sorted(data[month], key=lambda x: int(x[0].split()[0]))
+        for day, description in data[month]:
+            print(f"{month:<11} {day} | PLN {description[0]:<4} | ", " | ".join(description[1:]))
         print("-"*100)
-
-    search = driver.find_element(By.ID, "APjFqb").clear()
 
     return None
 
-print("-"*100)
-main(search_text, "PRZYLOT")
-main(return_search_text, "ODLOT")
 
-driver.quit()
+if __name__ == "__main__":
+    search_text = sys.argv[1]
+    amount = int(sys.argv[2])
+    get_driver()
+    for event in ["ODLOT", "PRZYLOT"]:
+        load_website(event, search_text)
+        main(event, amount)
+    driver.quit()
