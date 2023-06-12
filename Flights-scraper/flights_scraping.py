@@ -72,39 +72,41 @@ def format_flight_time(time_flight: str) -> str:
     return f"{hour} {minutes}"
 
 
-def main(information: str, amount: int) -> None:
+def main(information: str, amount: int, today_date: datetime) -> list:
+    time.sleep(1)
     if information == "ODLOT":
         cookies = driver.find_element(By.ID, "L2AGLb").click()
     driver.find_elements(By.CLASS_NAME, "oFoqE")[1].click()
-    time.sleep(1)
+    time.sleep(5)
     one = driver.find_elements(By.XPATH, "//div[@jsname='ibnC6b']")
     for elem in one:
         if "W jedną stronę" in elem.text:
             elem.click()
 
-    day = datetime.today().day + 1
-    month = datetime.today().month
+    day = today_date.day + 1
+    month = today_date.month
     timestamp = f"{day}. {month}"
 
     timestamp_input = driver.find_element(By.CLASS_NAME, "oRRgMc").clear()
     timestamp_input = driver.find_element(By.CLASS_NAME, "oRRgMc")
     timestamp_input.send_keys(timestamp)
     timestamp_input.send_keys(Keys.ENTER)
+    time.sleep(1)
 
     driver.find_element(By.CLASS_NAME, "eE8hUfzg9Na__overlay").click()
 
     time.sleep(1)
 
     month_sum = 3
-    timestamp = datetime.today()
-    nextmonth1 = timestamp + relativedelta.relativedelta(months=1)
-    nextmonth2 = timestamp + relativedelta.relativedelta(months=2)
-    for elem in [timestamp, nextmonth1, nextmonth2]:
+    nextmonth1 = today_date + relativedelta.relativedelta(months=1)
+    nextmonth2 = today_date + relativedelta.relativedelta(months=2)
+    for elem in [today_date, nextmonth1, nextmonth2]:
         month_sum += monthrange(elem.year, elem.day)[1]
 
     data = {}
+    month_sum = 30
     for _ in range(month_sum):
-        timestamp += timedelta(days=1)
+        today_date += timedelta(days=1)
         flights_list = driver.find_elements(By.CLASS_NAME, "ikUyY")
         for num, flight in enumerate(flights_list):
             flight_connect = flight.text
@@ -113,12 +115,12 @@ def main(information: str, amount: int) -> None:
                 flight_time = format_flight_time(flight_time)
                 airline = driver.find_elements(By.CLASS_NAME, "ps0VMc")[num].text
                 price = driver.find_elements(By.CLASS_NAME, "GARawf")[num].text.replace("zł", "").replace(" ","")
-                day_name = days_dict[timestamp.strftime("%A")]
-                month_name = months_dict[str(timestamp.month)]
+                day_name = days_dict[today_date.strftime("%A")]
+                month_name = months_dict[str(today_date.month)]
                 if month_name not in data:
-                    data[month_name] = {f"{timestamp.day:<2} {day_name:<3}": [int(price), "Bez przesiadek", flight_time, f"{airline:<9}"]}
+                    data[month_name] = {f"{today_date.day:<2} {day_name:<3}": [int(price), "Bez przesiadek", flight_time, f"{airline:<9}"]}
                 else:
-                    data[month_name][f"{timestamp.day:<2} {day_name:<3}"] = [int(price), "Bez przesiadek", flight_time, f"{airline:<9}"]
+                    data[month_name][f"{today_date.day:<2} {day_name:<3}"] = [int(price), "Bez przesiadek", flight_time, f"{airline:<9}"]
                 break
             else:
                 continue
@@ -127,24 +129,33 @@ def main(information: str, amount: int) -> None:
             driver.find_element(By.CLASS_NAME, "hLDSxb").click()
             time.sleep(0.6)
 
-    print(information)
-    print("-"*100)
+    flights = [information, "-"*100]
     for month in data:
         data[month] = sorted(data[month].items(), key=lambda x: x[1])[:amount]
         data[month][0][1].append("Najtaniej")
         data[month] = sorted(data[month], key=lambda x: int(x[0].split()[0]))
         for day, description in data[month]:
-            print(f"{month:<11} {day} | PLN {description[0]:<4} | ", " | ".join(description[1:]))
-        print("-"*100)
+            result = f"{month:<11} {day} | PLN {description[0]:<4} | " + " | ".join(description[1:])
+            flights.append(result)
+        flights.append("-"*100)
 
+    return flights
+
+def save_files(list_data: list, today_date: datetime) -> None:
+    string_timestamp = today_date.strftime("%Y%m%d_%H%M%S")
+    with open(f"flights/flight_{string_timestamp}.txt", "a") as f:
+        for elem in list_data:
+            f.write(f"{elem}\n")
+            print(elem)
     return None
-
 
 if __name__ == "__main__":
     search_text = sys.argv[1]
     amount = int(sys.argv[2])
+    now = datetime.now()
     get_driver()
     for event in ["ODLOT", "PRZYLOT"]:
         load_website(event, search_text)
-        main(event, amount)
+        f = main(event, amount, now)
+        save_files(f, now)
     driver.quit()
