@@ -23,7 +23,7 @@ def save_scrapped_petrol_data(body: list, file_name_path: str) -> None:
             p_station_name = elem.find("h3", {"class": "prices-table__name"}).text.strip()
             p_station_location = elem.find("span", {"class": "prices-table__location"}).text.strip()
             date_state = date_state.text.strip()
-            price = float(price.text.strip()[:4])
+            price = float(price.text.strip()[:4].replace(",", "."))
             if date_state == "dziś":
                 petrol_dict[p_station_name, p_station_location] = price
     with open(file_name_path, "w", encoding="utf-8") as file_read:
@@ -82,5 +82,7 @@ def execution_func(folder_name: str) -> None:
 def main():
     folder_name = "saved_data"
     execution_func(folder_name)
+
+
 if __name__ == '__main__':
     main()
