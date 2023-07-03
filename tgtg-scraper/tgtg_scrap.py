@@ -21,9 +21,11 @@ credentials = client.get_credentials()
 access_token = credentials["access_token"]
 refresh_token = credentials["refresh_token"]
 user_id = credentials["user_id"]
+cookie = credentials["cookie"]
 client = TgtgClient(access_token=access_token,
                     refresh_token=refresh_token,
-                    user_id=user_id)
+                    user_id=user_id,
+                    cookie=cookie)
 loc = Nominatim(user_agent="GetLoc")
 getLoc = loc.geocode(location)
 
