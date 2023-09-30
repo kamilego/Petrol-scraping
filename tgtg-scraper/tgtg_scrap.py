@@ -38,10 +38,10 @@ def play_sound() -> None:
 
 def main() -> None:
     while True:
-        items = client.get_items(
+        items = client.get_favorites(
             latitude=getLoc.latitude,
             longitude=getLoc.longitude,
-            page_size=100)
+            radius=distance)
         found = {elem["display_name"]: elem["items_available"] for elem in items if elem["items_available"] != 0 and elem["distance"] < distance}
         cur_time = datetime.now().strftime("%H:%M:%S")
         if found:
@@ -50,7 +50,7 @@ def main() -> None:
                 print(f"{cur_time} - {name} - amount: {amount}")
         else:
             print(f"{cur_time} - Nothing")
-        time.sleep(10)
+        time.sleep(5)
 
 
 if __name__ == "__main__":
