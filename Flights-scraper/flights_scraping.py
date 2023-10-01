@@ -40,7 +40,7 @@ months_dict = {
 
 
 def get_driver() -> None:
-    chromedriver_path = r"C:\Users\kamil.legowicz\Downloads\chromedriver.exe"
+    chromedriver_path = r"C:\Users\default.DESKTOP-E4TLVMN\Downloads\chromedriver.exe"
     service = Service(chromedriver_path)
     options = webdriver.ChromeOptions()
     # options.add_argument("headless")
@@ -143,7 +143,7 @@ def main(information: str, amount: int, today_date: datetime) -> list:
 
 def save_files(list_data: list, today_date: datetime) -> None:
     string_timestamp = today_date.strftime("%Y%m%d_%H%M%S")
-    with open(f"flights/flight_{string_timestamp}.txt", "a") as f:
+    with open(f"flights/flight_{string_timestamp}.txt", "a", encoding="utf-8") as f:
         for elem in list_data:
             f.write(f"{elem}\n")
             print(elem)
