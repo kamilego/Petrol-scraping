@@ -71,7 +71,7 @@ for league, matches in events_dict.items():
             for match in results:
                 goals = [int(elem) for elem in match.text.split("\n")]
                 goal_sum += sum(goals)
-            print(f"AVG goals: {goal_sum/last_matches} in last 5 games.")
+            print(f"AVG goals: {round(goal_sum/last_matches, 2)} in last 5 games.")
         driver.close()
         driver.switch_to.window(new_window[0])
         print("-"*5)
