@@ -5,10 +5,11 @@ import time
 import sys
 
 """
-py soccer.py 5
+py soccer.py 5 2.4
 """
 
 last_matches = int(sys.argv[1])
+avg_goals = float(sys.argv[2])
 website_url = r"https://www.flashscore.com/"
 chromedriver_path = r"C:\Users\default.DESKTOP-E4TLVMN\Downloads\chromedriver.exe"
 
@@ -47,6 +48,8 @@ for num, elem in enumerate(events):
         events_dict[soccer_league].append(elem)
 
 print()
+print(f"Analyzing last -{last_matches}- matches where AVG goals equals -{avg_goals}-")
+print()
 for league, matches in events_dict.items():
     print(league)
     print("-"*30)
@@ -63,16 +66,20 @@ for league, matches in events_dict.items():
                 tab.click()
         time.sleep(2)
         groups = driver.find_elements(By.CLASS_NAME, "h2h__section")
+        group_dict = {}
         for group in groups:
             team_title = group.find_element(By.CLASS_NAME, "section__title").text
-            results = group.find_elements(By.CLASS_NAME, "h2h__result")[:last_matches]
-            print(team_title)
+            results = group.find_elements(By.CLASS_NAME, "h2h__result")[:last_matches]   
             goal_sum = 0
             for match in results:
                 goals = [int(elem) for elem in match.text.split("\n")]
                 goal_sum += sum(goals)
-            print(f"AVG goals: {round(goal_sum/last_matches, 2)} in last 5 games.")
+            group_dict[team_title] = round(goal_sum/last_matches, 2)
+        # print(group_dict)
+        if all([result >= avg_goals for result in list(group_dict.values())[:2]]):
+            for key, value in group_dict.items():
+                print(f"{key:<30}", value)
+            print("-"*5)
         driver.close()
         driver.switch_to.window(new_window[0])
-        print("-"*5)
 driver.close()
