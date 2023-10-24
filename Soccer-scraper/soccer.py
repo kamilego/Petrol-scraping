@@ -27,6 +27,11 @@ time.sleep(2)
 cookies = driver.find_element(By.ID, "onetrust-accept-btn-handler").click()
 button = driver.find_element(By.CLASS_NAME, "wizard__closeButton").click()
 
+# go forward _th days 
+for _ in range(2):
+    next_day = driver.find_element(By.CLASS_NAME, "calendar__navigation--tomorrow").click()
+    time.sleep(1)
+
 events = driver.find_elements(By.CSS_SELECTOR, '.soccer')[1]
 events_text = events.get_attribute('innerHTML')
 events_text = events_text.replace('<div class="event__header', '<div id="event__header')
@@ -48,7 +53,7 @@ for num, elem in enumerate(events):
         events_dict[soccer_league].append(elem)
 
 print()
-print(f"Analyzing last -{last_matches}- matches where AVG goals equals -{avg_goals}-")
+print(f"Analyzing last -{last_matches}- matches where AVG goals are greater than -{avg_goals}-")
 print()
 for league, matches in events_dict.items():
     print(league)
@@ -78,7 +83,7 @@ for league, matches in events_dict.items():
         # print(group_dict)
         if all([result >= avg_goals for result in list(group_dict.values())[:2]]):
             for key, value in group_dict.items():
-                print(f"{key:<30}", value)
+                print(f"{key:<35}", value)
             print("-"*5)
         driver.close()
         driver.switch_to.window(new_window[0])
