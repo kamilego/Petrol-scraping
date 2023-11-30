@@ -8,8 +8,16 @@ import sys
 py soccer.py 5 2.4
 """
 
+if len(sys.argv) != 3:
+    raise Exception("""Command should looks like: py soccer.py 5 2.4""")
+
 last_matches = int(sys.argv[1])
 avg_goals = float(sys.argv[2])
+
+print()
+print(f"Analyzing last -{last_matches}- matches where AVG goals are greater than -{avg_goals}-")
+print()
+
 website_url = r"https://www.flashscore.com/"
 chromedriver_path = r"C:\Users\default.DESKTOP-E4TLVMN\Downloads\chromedriver.exe"
 
@@ -27,6 +35,11 @@ time.sleep(2)
 cookies = driver.find_element(By.ID, "onetrust-accept-btn-handler").click()
 button = driver.find_element(By.CLASS_NAME, "wizard__closeButton").click()
 
+# go forward _th days 
+# for _ in range(2):
+#     next_day = driver.find_element(By.CLASS_NAME, "calendar__navigation--tomorrow").click()
+#     time.sleep(1)
+
 events = driver.find_elements(By.CSS_SELECTOR, '.soccer')[1]
 events_text = events.get_attribute('innerHTML')
 events_text = events_text.replace('<div class="event__header', '<div id="event__header')
@@ -36,7 +49,7 @@ for num, elem in enumerate(events_list):
         number = num
         break
 
-events = driver.find_elements(By.CSS_SELECTOR, '.pinned, .event__match')[:number]
+events = driver.find_elements(By.CSS_SELECTOR, '.pinned, .event__match')[:number] # if you want to check finished matches
 events_dict = {}
 for num, elem in enumerate(events):
     elem_text = elem.get_attribute('innerHTML')
@@ -47,9 +60,6 @@ for num, elem in enumerate(events):
     else:
         events_dict[soccer_league].append(elem)
 
-print()
-print(f"Analyzing last -{last_matches}- matches where AVG goals equals -{avg_goals}-")
-print()
 for league, matches in events_dict.items():
     print(league)
     print("-"*30)
@@ -69,16 +79,22 @@ for league, matches in events_dict.items():
         group_dict = {}
         for group in groups:
             team_title = group.find_element(By.CLASS_NAME, "section__title").text
-            results = group.find_elements(By.CLASS_NAME, "h2h__result")[:last_matches]   
+            results = group.find_elements(By.CLASS_NAME, "h2h__result")[:last_matches]
+            num_of_h2h_matches = len(group.find_elements(By.CLASS_NAME, "h2h__row"))
             goal_sum = 0
             for match in results:
                 goals = [int(elem) for elem in match.text.split("\n")]
                 goal_sum += sum(goals)
-            group_dict[team_title] = round(goal_sum/last_matches, 2)
-        # print(group_dict)
-        if all([result >= avg_goals for result in list(group_dict.values())[:2]]):
+            if last_matches > num_of_h2h_matches:
+                group_dict[team_title] = round(goal_sum/num_of_h2h_matches, 2)
+            else:
+                group_dict[team_title] = round(goal_sum/last_matches, 2)
+        if all([result >= avg_goals for result in list(group_dict.values())[:2]]): # taking only matches of teams not h2h
+            current_date = driver.find_element(By.CLASS_NAME, "duelParticipant__startTime").text
+            match_status = driver.find_element(By.CLASS_NAME, "fixedHeaderDuel__detailStatus").text
+            print(f"{current_date} | {match_status}")
             for key, value in group_dict.items():
-                print(f"{key:<30}", value)
+                print(f"{key:<35}", value)
             print("-"*5)
         driver.close()
         driver.switch_to.window(new_window[0])
