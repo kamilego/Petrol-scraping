@@ -77,7 +77,7 @@ for league, matches in events_dict.items():
         time.sleep(1)
         new_window = driver.window_handles
         driver.switch_to.window(new_window[1])
-        tabs = driver.find_elements(By.CLASS_NAME, "_tabsPrimary_19tkx_23")
+        tabs = driver.find_elements(By.CLASS_NAME, "_tabsPrimary_1b0gr_23")
         for num, tab in enumerate(tabs):
             tab_text = tab.get_attribute('innerHTML')
             if 'H2H' in tab_text:
