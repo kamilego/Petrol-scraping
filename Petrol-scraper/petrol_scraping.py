@@ -51,7 +51,7 @@ def load_petrol_data(folder_name: str) -> dict:
 def plot_graph(data_dict: dict) -> None:
     for date, price in data_dict.items():
         data_dict[date] = float(price.split(",")[0].split()[-1][:-2])
-    data_dict = {k: data_dict[k] for k in sorted(list(data_dict.keys()), key=lambda x: int(x.split("-")[1]))}
+    data_dict = {k: data_dict[k] for k in sorted(list(data_dict.keys()), key=lambda x: datetime.strptime(x, '%d-%m-%y'))}
     graph = plt.bar(x=data_dict.keys(), height=data_dict.values(), width=0.3)
     min_value = min(list(data_dict.values()))
     min_index = list(data_dict.values()).index(min_value)
