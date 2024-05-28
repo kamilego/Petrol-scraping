@@ -5,7 +5,7 @@ import time
 import sys
 
 """
-py soccer.py 5 2.4
+py soccer.py 5 2.4 0
 """
 
 if len(sys.argv) != 4:
@@ -77,11 +77,7 @@ for league, matches in events_dict.items():
         time.sleep(1)
         new_window = driver.window_handles
         driver.switch_to.window(new_window[1])
-        tabs = driver.find_elements(By.CLASS_NAME, "_tabsPrimary_1b0gr_23")
-        for num, tab in enumerate(tabs):
-            tab_text = tab.get_attribute('innerHTML')
-            if 'H2H' in tab_text:
-                tab.click()
+        driver.find_element(By.XPATH, "//a[@href='#/h2h']").click()
         time.sleep(2)
         groups = driver.find_elements(By.CLASS_NAME, "h2h__section")
         group_dict = {}
