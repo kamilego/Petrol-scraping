@@ -226,3 +226,72 @@ except Exception as e:
     driver.quit()
     print("Failed to create your Gmail, Sorry")
     print(e)
+
+
+####
+
+# Different mail registration website approach
+
+####
+
+# from selenium import webdriver
+# from selenium.webdriver.chrome.service import Service
+# from selenium.webdriver.common.by import By
+# from selenium.webdriver.support.ui import Select
+# import time
+
+
+# chromedriver_path = r"C:\Users\default.DESKTOP-E4TLVMN\Downloads\chromedriver.exe"
+# service = Service(chromedriver_path)
+# options = webdriver.ChromeOptions()
+# # options.add_argument("headless")
+# options.add_experimental_option('excludeSwitches', ['enable-logging'])
+# options.add_experimental_option("detach", True)
+
+# driver = webdriver.Chrome(service=service, options=options)
+# driver.maximize_window()
+
+# # recovery_email = "fanbayernu806@gmail.com"
+
+# # your data
+# your_first_name = "Odyn2012"
+# your_last_name = "podmiotowsky"
+# your_username = "monitonisnvidia912" # gama1445pro@gmail.com // make sure to be unique
+# your_birthday = "02 3 1995" #dd m yyyy exp : 24 11 2003
+# your_gender = "1" # 1:F 2:M 3:Not say 4:Custom
+# your_password = "ASsda2e1SA215a1a1002@@"
+# recovery_email = "fanbayernu806@gmail.com"
+
+# driver.get("https://mail.onmail.com/signup")
+# time.sleep(4)
+# driver.find_element(By.NAME, "email").send_keys(your_username)
+# time.sleep(1)
+# driver.find_element(By.XPATH, "//button[@type='submit']").click()
+
+
+# driver.find_element(By.NAME, "password").send_keys(your_password)
+# driver.find_element(By.NAME, "confirmPassword").send_keys(your_password)
+# time.sleep(1)
+# driver.find_element(By.XPATH, "//button[@type='submit']").click()
+
+
+# driver.find_element(By.NAME, "firstName").send_keys(your_first_name)
+# driver.find_element(By.NAME, "lastName").send_keys(your_last_name)
+
+# dates = driver.find_elements(By.CLASS_NAME, "MuiListItemText-root")
+# for i in range(len(dates)):
+#     dates[i].click()
+#     time.sleep(1)
+#     driver.find_elements(By.XPATH, "//div[@tabindex='0']")[1].click()
+
+# driver.find_element(By.ID, "acceptTerms").click()
+# time.sleep(1)
+# driver.find_element(By.XPATH, "//button[@type='submit']").click()
+# time.sleep(1)
+# driver.find_element(By.XPATH, '//*[@id="root"]/div/section/div/form/div/div[2]/div[2]/button').click()
+
+
+# driver.find_element(By.NAME, "email").send_keys(recovery_email)
+# driver.find_element(By.NAME, "confirmEmail").send_keys(recovery_email)
+# time.sleep(1)
+# driver.find_element(By.XPATH, "//button[@type='submit']").click()
