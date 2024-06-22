@@ -69,6 +69,7 @@ for num, elem in enumerate(events):
         events_dict[soccer_league].append(elem)
 
 multiple_odds = 1
+print(events_dict.items())
 for league, matches in events_dict.items():
     print(league.replace("\n", ""))
     print("-"*30)
@@ -90,17 +91,21 @@ for league, matches in events_dict.items():
             for result in results:
                 goals = [int(elem) for elem in result.text.split("\n")]
                 goal_sum += sum(goals)
-            if last_matches > num_of_h2h_matches:
-                group_dict[team_title] = round(goal_sum/num_of_h2h_matches, 2)
+            if num_of_h2h_matches:
+                if last_matches > num_of_h2h_matches:
+                    group_dict[team_title] = round(goal_sum/num_of_h2h_matches, 2)
+                else:
+                    group_dict[team_title] = round(goal_sum/last_matches, 2)
             else:
-                group_dict[team_title] = round(goal_sum/last_matches, 2)
+                group_dict[team_title] = "No historical matches between teams"
         if all([result >= avg_goals for result in list(group_dict.values())[:2]]): # taking only matches of teams not h2h
             current_date = driver.find_element(By.CLASS_NAME, "duelParticipant__startTime").text
             match_status = driver.find_element(By.CLASS_NAME, "fixedHeaderDuel__detailStatus").text
             driver.find_element(By.XPATH, "//a[@href='#/odds-comparison']").click()
             time.sleep(5)
             driver.find_element(By.XPATH, "//a[@href='#/odds-comparison/over-under']").click()
-            odds = driver.find_elements(By.CLASS_NAME, "oddsCell__odds")[2]
+            time.sleep(5)
+            odds = driver.find_elements(By.CLASS_NAME, "oddsCell__odds")[2] # list off odds over 1.5 goal
             first_odd_1_5 = odds.find_element(By.CSS_SELECTOR, '.oddsCell__odd, .oddsCell__highlight').text
             multiple_odds *= float(first_odd_1_5)
             print(f"{current_date} | {match_status}")
