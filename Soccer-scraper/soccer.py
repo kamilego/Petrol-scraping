@@ -43,33 +43,22 @@ if next_days > 0:
     for _ in range(next_days):
         next_day = driver.find_element(By.CLASS_NAME, "calendar__navigation--tomorrow").click()
         time.sleep(1)
-    events = driver.find_elements(By.CSS_SELECTOR, '.sportName, .soccer')[1]
-    events_text = events.get_attribute('innerHTML')
-else:
-    events = driver.find_elements(By.CSS_SELECTOR, '.sportName, .soccer')
-    events_text = events[1].get_attribute('innerHTML')+events[3].get_attribute('innerHTML')
 
-events_text = events_text.replace('<div class="wclLeagueHeader', '<div id="wclLeagueHeader')
-events_list = events_text.split("</div><div id=")
-for num, elem in enumerate(events_list):
-    if '"wclLeagueHeader wclLeagueHeader--collapsed"' in elem:
-        number = num
-        break
+all_events = driver.find_elements(By.CSS_SELECTOR, '.sportName, .soccer')[1]
+main_events = all_events.find_elements(By.CSS_SELECTOR, '.wclLeagueHeader, .event__match')
 
-# if you want to check finished matches
-events = driver.find_elements(By.CSS_SELECTOR, '.wclLeagueHeader--pinned, .event__match')[:number]
 events_dict = {}
-for num, elem in enumerate(events):
-    elem_text = elem.get_attribute('innerHTML')
-    if "wizard__relativeWrapper" in elem_text:
-        title = elem.find_element(By.CLASS_NAME, "event__title")
-        soccer_league = title.text
-        events_dict[soccer_league] = []
+for num, elem in enumerate(main_events[:10]):
+    if "wclLeagueHeader" in elem.get_attribute('innerHTML'):
+        if "Unpin this league" in elem.get_attribute('innerHTML'):
+            title = elem.find_element(By.CLASS_NAME, 'event__title').text
+            events_dict[title] = []
+        else:
+            break
     else:
-        events_dict[soccer_league].append(elem)
+        events_dict[title].append(elem)
 
 multiple_odds = 1
-print(events_dict.items())
 for league, matches in events_dict.items():
     print(league.replace("\n", ""))
     print("-"*30)
@@ -107,8 +96,10 @@ for league, matches in events_dict.items():
             time.sleep(5)
             odds = driver.find_elements(By.CLASS_NAME, "oddsCell__odds")[2] # list off odds over 1.5 goal
             first_odd_1_5 = odds.find_element(By.CSS_SELECTOR, '.oddsCell__odd, .oddsCell__highlight').text
-            multiple_odds *= float(first_odd_1_5)
+            if "finished" not in match_status.lower():
+                multiple_odds *= float(first_odd_1_5)
             print(f"{current_date} | {match_status}")
+            time.sleep(1)
             for key, value in group_dict.items():
                 print(f"{key:<35}", value)
             print(f"Over 1.5 goals odd: {first_odd_1_5}")
@@ -116,4 +107,5 @@ for league, matches in events_dict.items():
         driver.close()
         driver.switch_to.window(new_window[0])
 print(f"Overall over 1.5 goals odds: {multiple_odds:.2f}")
+
 driver.close()
